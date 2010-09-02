@@ -19,6 +19,32 @@ function toggleCollapsable(id)
   }
 }
 
+function toggleCollapsibleRetreivable(htmlpath, id)
+{
+  toggleCollapsable(id)  
+  var div = document.getElementById(id);
+  div.innerHTML= syncLoadText(htmlpath);
+}
+
+function syncLoadText(textUrl) {
+    if (window.ActiveXObject) {
+        //IE
+        var xmlRequest = new ActiveXObject("Microsoft.XMLHTTP");
+        xmlRequest.open("GET", textUrl, false);
+        //xmlRequest.setRequestHeader ("Cache-Control","no-cache");
+        xmlRequest.send();
+        var txtDoc = xmlRequest.responseText;
+    } else if (window.XMLHttpRequest) {
+        // Firefox
+        var xmlRequest = new XMLHttpRequest();
+        xmlRequest.open("GET", textUrl, false);
+        xmlRequest.send(null);
+        //xmlRequest.setRequestHeader ("Cache-Control","no-cache");
+        var txtDoc = xmlRequest.responseText;
+    }
+    return txtDoc;
+}
+
 function popup(window_id) {
   var window = document.getElementById(window_id);
   window.style.visibility = "visible";

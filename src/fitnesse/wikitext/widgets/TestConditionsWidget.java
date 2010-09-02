@@ -16,36 +16,39 @@ import fitnesse.wikitext.WikiWidget;
 //created by Clare McLennan
 
 public class TestConditionsWidget extends CollapsableWidget {
-  public static final String REGEXP = "^!tc[ \\t]+(tc_\\d+(?:,tc_\\d+)*)";
-  
+  public static final String REGEXP = "^!tc[ \\t]+tc_\\d+(?:,tc_\\d+)*";
+  public static final Pattern pattern = Pattern.compile("^!tc[ \\t]+(tc_\\d+(?:,tc_\\d+)*)");
+  private static final String WAIT_STRING = "Test conditions will be viewable soon";
   private static final String PREFIX = "tc_";
+  private final String numberList;
 
   public TestConditionsWidget(ParentWidget parent, String text) throws Exception {
     super(parent, makeCollapsableWidgetMarkup(text));
+    
+    numberList = makeTcNumbersList(text, ",");
   }
   
   private static String makeCollapsableWidgetMarkup(String text) {
 
     String title = "";
-    Matcher match = Pattern.compile(REGEXP).matcher(text);
-    if (match.find()) {
-      String[] tcs = makeTcsList(match.group(1));
-      title = makeTitle(tcs);
-    }
     
-    return "!*> " + title + "\nTest conditions will be viewable soon\n*!";
+    return "!*> Test Conditions: " + makeTcNumbersList(text, ", ") + 
+    "\n" + WAIT_STRING + "\n*!";
   }
 
-  private static String makeTitle(String[] tcs) {
-    String title = "Test Conditions: ";
+  private static String makeTcNumbersList(String text, String separator) {
+    Matcher match = pattern.matcher(text);
+    String list = ""; 
     
-    for (String tc : tcs) {
-      title += tc;
-      title += ", ";
+    if (match.find()) {
+      String[] tcs = makeTcsList(match.group(1));
+      for (String tc : tcs) {
+        list += tc;
+        list += separator;
+      }
+      list = list.substring(0, list.length() - separator.length());
     }
-    
-    title = title.substring(0, title.length() - 2);
-    return title;
+    return list;
   }
 
   private static String[] makeTcsList(String group) {
@@ -61,7 +64,16 @@ public class TestConditionsWidget extends CollapsableWidget {
   @Override
   public String render() throws Exception {
     String html = super.render();
-    html = html.replace("javascript:toggleCollapsable(", "javascript:toggleCollapsibleRetreivable('http://localhost:11112/files/223.html', ");
+    String url = parent.getVariable("TC_URL");
+    
+    if (url == null) {
+      html = html.replace(WAIT_STRING, "You need to set the \"TC_URL\" to display the test conditions.");
+    }
+    else {
+      html = html.replace("javascript:toggleCollapsable(", 
+          "javascript:toggleCollapsibleRetreivable('" + url + numberList + "', ");
+      
+    }
     return html;
   }
 }

@@ -1,0 +1,12 @@
+#set ($page_title="Suite completion")
+#parse("pageHead.vm")
+
+#if($treeRoot)
+<h2> treeRoot2 </h2>  $treeRoot.getName()
+#set ($branch=$treeRoot)
+#parse("branchCompletion.vm")
+#else
+  <h2>Sorry no information: $pageTitle.Title</h2>
+#end
+
+#parse("pageFooter.vm")

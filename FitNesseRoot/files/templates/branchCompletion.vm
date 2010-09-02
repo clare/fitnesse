@@ -1,0 +1,9 @@
+#foreach($branch in $branch.getBranches())
+  #if ($branch.isTest())
+    <div class="folder $branch.getCssClass()"> Test: $branch.getName()</div>
+  #else
+    <div class="folder $branch.getCssClass()"> $branch.getName() ($branch.getTestsPassed(),
+    $branch.getTestsUnrun(), $branch.getTestsFailed())  </div>
+  #end
+  #parse("branchCompletion.vm")
+#end

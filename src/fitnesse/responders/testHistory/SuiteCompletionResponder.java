@@ -1,7 +1,11 @@
 package fitnesse.responders.testHistory;
 
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
+
+import javax.swing.text.DateFormatter;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -18,6 +22,7 @@ import fitnesse.http.Response;
 import fitnesse.http.SimpleResponse;
 import fitnesse.responders.run.SuiteContentsFinder;
 import fitnesse.responders.run.SuiteFilter;
+import fitnesse.responders.templateUtilities.PageTitle;
 import fitnesse.wiki.PathParser;
 import fitnesse.wiki.WikiPage;
 
@@ -34,21 +39,16 @@ public class SuiteCompletionResponder implements Responder {
     CompletenessTree treeview = new CompletenessTree(pagelist);
     treeview.findLatestResults(context.getTestHistoryDirectory());
     treeview.countResults();
-    String[] treeLines = treeview.printTree();
     
     SimpleResponse response = new SimpleResponse(400);
-    HtmlPage html = context.htmlPageFactory.newPage();
-    HtmlUtil.addTitles(html, "Suite Completion Responder");
-    html.main.add("<ul>");
-    for (String line : treeLines) {
-      html.main.add("<li>" + line + "</li>");
-    }
     
-    html.main.add("</ul>");
-    response.setContent(html.html());
-
     VelocityContext velocityContext = new VelocityContext();
-    velocityContext.put("treeRoot", treeview.treeRoot);
+    velocityContext.put("treeRoot", treeview.getTreeRoot());
+    PageTitle title = new PageTitle("Suite Overview", PathParser.parse(request.getResource()));
+    velocityContext.put("pageTitle", title);
+    
+    
+    
     String velocityTemplate = "pageCompletion.vm";
     Template template = VelocityFactory.getVelocityEngine().getTemplate(velocityTemplate);
     StringWriter writer = new StringWriter();

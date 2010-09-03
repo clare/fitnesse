@@ -1,6 +1,8 @@
 package fitnesse.responders.testHistory;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,11 +10,16 @@ import fitnesse.wiki.WikiPage;
 
 public class CompletenessTree {
 
-  final public TreeItem treeRoot = new TreeItem("root", "", 0);
+  private TreeItem treeRoot = new TreeItem("root", "");
   
   
+
   CompletenessTree(List<String> aPagelist, String anotherone) {
     makeTree(aPagelist);
+  }
+
+  public CompletenessTree(List<WikiPage> wikiPagelist) {
+    this(convertToPageList(wikiPagelist), null);
   }
   
   private void makeTree(List<String> pageList) {
@@ -21,10 +28,11 @@ public class CompletenessTree {
       String[] splits = pageName.split("\\.");
       treeRoot.addItem(splits, 0);
     }
+    compactTree();
   }
   
-  public CompletenessTree(List<WikiPage> wikiPagelist) {
-    this(convertToPageList(wikiPagelist), null);
+  public TreeItem getTreeRoot() {
+    return treeRoot;
   }
 
   private static List<String> convertToPageList(List<WikiPage> wikiPagelist) {
@@ -48,7 +56,7 @@ public class CompletenessTree {
       }
       
       @Override
-      public void doMethod(int level, TreeItem item) {
+      public void doMethod(TreeItem item) {
         item.calculateResults();
       }
     };
@@ -58,7 +66,7 @@ public class CompletenessTree {
   public void findLatestResults(final File historyDirectory) {
     RecursiveTreeMethod findLatestResult = new RecursiveTreeMethod() {
       @Override
-      public void doMethod(int level, TreeItem item) {
+      public void doMethod(TreeItem item) {
         if (item.isTest()) {
           File directory = new File(historyDirectory, item.fullName);
           MostRecentPageHistoryReader reader = new MostRecentPageHistoryReader(directory);
@@ -69,44 +77,32 @@ public class CompletenessTree {
     treeRoot.doRecursive(findLatestResult, 0);
   }
   
-  public String[] printTree() {
-    final List<String> alllines = new LinkedList<String>();
-    RecursiveTreeMethod printTreeItem = new RecursiveTreeMethod() {
+  private void compactTree() {
+    RecursiveTreeMethod compactBranch = new RecursiveTreeMethod() {
       @Override
-      public void doMethod(int level, TreeItem item) {
-        String line = "";
-        
-        for (int counter = 0; counter < level - 1; counter++ ) {
-          line += "-";
-        }
-        line += item.name;
-        if (item.isTest()) {
-          line += "*";
-        }
-        else {
-          line += "(" + item.testsPassed + "," + item.testsFailed + "," + item.testsUnrun + ")";
-        }
-
-        alllines.add(line);
+      public void doMethod(TreeItem item) {
+        item.compactWithChildIfOnlyOneChild();
       }
     };
+    treeRoot.doRecursive(compactBranch, 0);
     
-    treeRoot.doRecursive(printTreeItem, 0);
-    return alllines.toArray(new String[alllines.size()]);
   }
   
+  private SimpleDateFormat dateFormatter = new SimpleDateFormat(TestHistory.TEST_RESULT_FILE_DATE_PATTERN);
+
   public class TreeItem
   {
-    final String name;
-    final String fullName;
+    
+    private String name;
+    private String fullName;
     int testsPassed = 0;
     int testsUnrun = 0;
     int testsFailed = 0;
-    final int folderlevel;
-
     
     List<TreeItem> branches = new LinkedList<TreeItem>();
     TestResultRecord result = null;
+    
+    
     
     public int getTestsPassed() {
       return testsPassed;
@@ -120,14 +116,62 @@ public class CompletenessTree {
       return testsFailed;
     }
 
+    private String calcPercentOfTotalTests(int value) {
+      int totalTests = testsPassed + testsUnrun + testsFailed;
+      if (value != totalTests) {
+        int percent = (int) (((100.0) * value)/totalTests);
+        return "(" + percent + "%)";
+      }
+      return "";
+    }
+    
+    public String getPassedPercent() {
+      return calcPercentOfTotalTests(testsPassed);
+    }
+    
+    public String getUnrunPercent() {
+      return calcPercentOfTotalTests(testsUnrun);
+    }
+    
+    public String getFailedPercent() {
+      return calcPercentOfTotalTests(testsFailed);
+    }
+
     public String getName() {
       return name;
     }
+
+    public String getFullName() {
+      return fullName;
+    }
+
+    public String getHistoryUrl() {
+      String url = getFullName();
+      
+      if (result != null) {
+        url += "?pageHistory&resultDate=";
+        url += dateFormatter.format(result.getDate());
+      }
+      
+      return url;
+    }
     
-    TreeItem(String branchName, String branchFullName, int afolderLevel) {
+    public void compactWithChildIfOnlyOneChild() {
+      if (branches.size() == 1) {
+        TreeItem child = branches.get(0);
+        if (!child.isTest()) {
+          name += "." + child.name;
+          fullName += "." + child.name;
+          branches = child.branches;
+          
+          compactWithChildIfOnlyOneChild();
+        }
+      }
+    }
+    
+    TreeItem(String branchName, String branchFullName) {
       name = branchName;
       fullName = branchFullName;
-      folderlevel = afolderLevel; 
     }
     
     public List<TreeItem> getBranches() {
@@ -174,7 +218,7 @@ public class CompletenessTree {
           String branchName = itemPath[currentIndex];
           String branchFullName = fullName;
           branchFullName += (fullName.length() > 0) ? "." + branchName : branchName;
-          TreeItem branch = new TreeItem(branchName, branchFullName, folderlevel + 1);
+          TreeItem branch = new TreeItem(branchName, branchFullName);
           branches.add(branch);
           branch.addItem(itemPath, ++currentIndex);
         }
@@ -191,7 +235,7 @@ public class CompletenessTree {
     
     public String getCssClass() {
       if (testsFailed != 0) {
-        return "failures";
+        return "fail";
       }
       else if (testsUnrun != 0) {
         return "unrun";
@@ -203,7 +247,7 @@ public class CompletenessTree {
     
     void doRecursive(RecursiveTreeMethod method, int level) {
       if (method.shouldDoItemBeforeBranches() && (level != 0)) {
-        method.doMethod(level, this);
+        method.doMethod(this);
       }
       
       for (TreeItem branch : branches)  {
@@ -211,7 +255,7 @@ public class CompletenessTree {
       }
       
       if (!method.shouldDoItemBeforeBranches() && (level != 0)) {
-        method.doMethod(level, this);
+        method.doMethod(this);
       }
     }
   }
@@ -223,7 +267,7 @@ public class CompletenessTree {
       return true;
     }
     
-    public abstract void doMethod(int level, TreeItem item);
+    public abstract void doMethod(TreeItem item);
  
   }
 }

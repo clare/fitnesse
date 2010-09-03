@@ -693,3 +693,42 @@ table.dirListing {
 .fit_grey {
   color: #808080;
 }
+
+.passed_tests,
+.unrun_tests,
+.failed_tests {
+  background-repeat: no-repeat;
+  padding-left: 22px;
+  margin: 0px 4px;
+}
+
+.passed_tests {
+  background-image: url('../images/pass.png');
+}
+
+.unrun_tests {
+  background-image: url('../images/unrun.png');	
+}
+
+.failed_tests {
+  background-image: url('../images/fail.png');	
+}
+
+.completion_folder{
+  margin: 2px 5px;
+}
+
+.completion_test{
+  margin: 0px 25px;
+}
+
+a.fail,
+.fail {
+  background-color: #ffcbd0;
+}
+
+.unrun,
+a.unrun
+{
+  background-color: #fff3b4;
+}

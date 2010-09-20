@@ -26,7 +26,7 @@ import fitnesse.responders.templateUtilities.PageTitle;
 import fitnesse.wiki.PathParser;
 import fitnesse.wiki.WikiPage;
 
-public class SuiteCompletionResponder implements Responder {
+public class SuiteOverviewResponder implements Responder {
 
   public Response makeResponse(FitNesseContext context, Request request) throws Exception {
     WikiPage root = context.root;
@@ -36,7 +36,7 @@ public class SuiteCompletionResponder implements Responder {
     SuiteContentsFinder suiteTestFinder = new SuiteContentsFinder(page, filter, root);
     
     List<WikiPage> pagelist = suiteTestFinder.makePageList();
-    CompletenessTree treeview = new CompletenessTree(pagelist);
+    SuiteOverviewTree treeview = new SuiteOverviewTree(pagelist);
     treeview.findLatestResults(context.getTestHistoryDirectory());
     treeview.countResults();
     
@@ -49,7 +49,7 @@ public class SuiteCompletionResponder implements Responder {
     
     
     
-    String velocityTemplate = "pageCompletion.vm";
+    String velocityTemplate = "suiteOverview.vm";
     Template template = VelocityFactory.getVelocityEngine().getTemplate(velocityTemplate);
     StringWriter writer = new StringWriter();
     template.merge(velocityContext, writer);

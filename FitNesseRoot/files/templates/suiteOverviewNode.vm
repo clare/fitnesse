@@ -9,18 +9,18 @@
 		</a>  	
 	  	<div class="meta completion_folder"><span class="$branch.getCssClass()"> <a href="$branch.getHistoryUrl()" class="$branch.getCssClass()">$branch.getName()</a></span>  (
 		  	#if ($branch.getTestsPassed() != 0)
-			  	 <span class="passed_tests"> $branch.getTestsPassed()$branch.getPassedPercent()</span>
+			  	 <span class="passed_tests"> $branch.getTestsPassed() &nbsp; $branch.getPassedPercentString()</span>
 			#end
 		  	#if ($branch.getTestsUnrun() != 0)
-			  	 <span class="unrun_tests">$branch.getTestsUnrun()$branch.getUnrunPercent()</span>
+			  	 <span class="unrun_tests">$branch.getTestsUnrun() &nbsp; $branch.getUnrunPercentString()</span>
 			#end
 		  	#if ($branch.getTestsFailed() != 0)
-			  	 <span class="failed_tests">$branch.getTestsFailed()$branch.getFailedPercent()</span>
+			  	 <span class="failed_tests">$branch.getTestsFailed() &nbsp; $branch.getFailedPercentString()</span>
 			#end
 			)
 		</div>
 		<div id="$branch.getFullName()" class="hidden">      
-		#parse("branchCompletion.vm")
+		#parse("suiteOverviewNode.vm")
 		</div>
 	</div>
   #end

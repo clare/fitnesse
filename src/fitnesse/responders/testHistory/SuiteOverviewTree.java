@@ -6,19 +6,19 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import util.GracefulNamer;
+
 import fitnesse.wiki.WikiPage;
 
-public class CompletenessTree {
+public class SuiteOverviewTree {
 
   private TreeItem treeRoot = new TreeItem("root", "");
-  
-  
 
-  CompletenessTree(List<String> aPagelist, String anotherone) {
+  SuiteOverviewTree(List<String> aPagelist, String anotherone) {
     makeTree(aPagelist);
   }
 
-  public CompletenessTree(List<WikiPage> wikiPagelist) {
+  public SuiteOverviewTree(List<WikiPage> wikiPagelist) {
     this(convertToPageList(wikiPagelist), null);
   }
   
@@ -116,29 +116,47 @@ public class CompletenessTree {
       return testsFailed;
     }
 
-    private String calcPercentOfTotalTests(int value) {
+    private double calcPercentOfTotalTests(int value) {
       int totalTests = testsPassed + testsUnrun + testsFailed;
-      if (value != totalTests) {
-        int percent = (int) (((100.0) * value)/totalTests);
-        return "(" + percent + "%)";
+      double doubleValue = value;
+      return ((double)(Math.round(((1000.0 * value)/totalTests))))/10;
+    }
+
+    private String makePercentageOfTotalString(int value) {
+      double percentage = calcPercentOfTotalTests(value);
+      if (calcPercentOfTotalTests(value) < 99.95) {
+        return "(" + (int)percentage + "%)";
       }
       return "";
     }
+        
+    public String getPassedPercentString() {
+      return makePercentageOfTotalString(testsPassed);
+    }
     
-    public String getPassedPercent() {
+    public String getUnrunPercentString() {
+      return makePercentageOfTotalString(testsUnrun);
+    }
+    
+    public String getFailedPercentString() {
+      return makePercentageOfTotalString(testsFailed);
+    }
+
+    public double getPassedPercent() {
       return calcPercentOfTotalTests(testsPassed);
     }
     
-    public String getUnrunPercent() {
+    public double getUnrunPercent() {
       return calcPercentOfTotalTests(testsUnrun);
     }
     
-    public String getFailedPercent() {
+    public double getFailedPercent() {
       return calcPercentOfTotalTests(testsFailed);
     }
 
+    
     public String getName() {
-      return name;
+      return GracefulNamer.regrace(name);
     }
 
     public String getFullName() {

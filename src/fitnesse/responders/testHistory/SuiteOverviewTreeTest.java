@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-public class CompletenessTreeTest {
+public class SuiteOverviewTreeTest {
 
   
   @SuppressWarnings("deprecation")
@@ -16,7 +16,7 @@ public class CompletenessTreeTest {
     pageNames.add("FitNesse.MyTests.Test2");
     pageNames.add("FitNesse.MyTests.Test3");
     
-    CompletenessTree tree = new CompletenessTree(pageNames, null);
+    SuiteOverviewTree tree = new SuiteOverviewTree(pageNames, null);
     
   }
 
@@ -28,7 +28,7 @@ public class CompletenessTreeTest {
     pageNames.add("FitNesse.MyTestsA.Test2");
     pageNames.add("FitNesse.MyTestsB.Test3");
     
-    CompletenessTree tree = new CompletenessTree(pageNames, null);
+    SuiteOverviewTree tree = new SuiteOverviewTree(pageNames, null);
     
   }
 }

@@ -147,7 +147,8 @@ public class SuiteOverviewTree {
     }
     
     public double getUnrunPercent() {
-      return calcPercentOfTotalTests(testsUnrun);
+      // to prevent a rounding area and results adding up to more than 100
+      return 100 - calcPercentOfTotalTests(testsPassed) - calcPercentOfTotalTests(testsFailed); 
     }
     
     public double getFailedPercent() {

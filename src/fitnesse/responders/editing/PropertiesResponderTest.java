@@ -291,7 +291,6 @@ public class PropertiesResponderTest extends RegexTestCase {
     assertSubString("<input type=\"radio\" name=\"PageType\" value=\"Normal\"/> - Normal", html);
     assertSubString("<input type=\"radio\" name=\"PageType\" value=\"Test\" checked=\"checked\"/> - Test", html);
     assertSubString("<input type=\"radio\" name=\"PageType\" value=\"Suite\"/> - Suite", html);
-    assertSubString("<input type=\"checkbox\" name=\"Prune\"/> - Skip (Recursive)", html);
   }
 
   public void testActionPropertiesHtml() throws Exception {
@@ -315,6 +314,7 @@ public class PropertiesResponderTest extends RegexTestCase {
     assertSubString("<input type=\"checkbox\" name=\"Files\" checked=\"true\"/> - Files", html);
     assertSubString("<input type=\"checkbox\" name=\"RecentChanges\" checked=\"true\"/> - RecentChanges", html);
     assertSubString("<input type=\"checkbox\" name=\"Search\" checked=\"true\"/> - Search", html);
+    assertSubString("<input type=\"checkbox\" name=\"Prune\"/> - Prune", html);
   }
 
   public void testMakeSecurityPropertiesHtml() throws Exception {

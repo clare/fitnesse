@@ -1,0 +1,28 @@
+$(function () {
+  var tree = $("$listName")
+    .bind("loaded.jstree", function (e, data) {
+        data.inst.open_all(-1); // -1 opens all nodes in the container
+    })
+    .jstree({ 
+             "types" : {
+               "types" : {
+                 "suite" : {
+                   "valid_children" : [ "test" ],
+                   "icon" : { "image" : "/files/images/contentsIcons.png", },
+                   "max_depth" : 1
+                 },
+
+                "test" : {
+                  "valid_children" : [ "none" ],
+                   "icon" : { "image" : "/files/images/contentsIcons.png", "position" : "-16px 0px"},
+                },
+
+                "static" : {
+                  "valid_children" : [ "none" ],
+                   "icon" : { "image" : "/files/images/contentsIcons.png", "position" : "-32px 0px"},
+                }
+              }
+            },
+		   "plugins" : ["themes","html_data", "types" ],
+    });
+});

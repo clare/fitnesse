@@ -22,8 +22,8 @@ public class ContentsItemBuilder {
     }
 
     public HtmlTag buildLevel(SourcePage page, HtmlTag contentsDiv) {
-        HtmlTag div = HtmlUtil.makeDivTag("toc" + level);
         HtmlTag list = new HtmlTag("ul");
+        list.addAttribute("class", "toc" + level);
         try {
             for (SourcePage child: getSortedChildren(page)) {
                 list.add(buildListItem(child));
@@ -33,18 +33,21 @@ public class ContentsItemBuilder {
             throw new IllegalStateException(e);
         }
         contentsDiv.add(list);
-        div.add(contentsDiv);
-        return div;
+        return contentsDiv;
     }
 
     private HtmlTag buildListItem(SourcePage child) {
         HtmlTag listItem = new HtmlTag("li");
         HtmlTag childItem = buildItem(child);
+        try {
+          listItem.addAttribute("rel", PageType.fromWikiPage(child).toString());
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
         listItem.add(childItem);
         if (child.getChildren().size() > 0) {
             if (level < getRecursionLimit()) {
-                HtmlTag nestedDiv =  HtmlUtil.makeDivTag("nested-contents");
-                listItem.add(new ContentsItemBuilder(contents, level + 1).buildLevel(child, nestedDiv));
+                new ContentsItemBuilder(contents, level + 1).buildLevel(child, listItem);
             }
             else if (getRecursionLimit() > 0){
                 childItem.add(contents.getVariable(TOCWidget.MORE_SUFFIX_TOC, TOCWidget.MORE_SUFFIX_DEFAULT));

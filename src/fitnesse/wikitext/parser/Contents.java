@@ -1,5 +1,8 @@
 package fitnesse.wikitext.parser;
 
+import org.apache.velocity.VelocityContext;
+
+import fitnesse.VelocityFactory;
 import fitnesse.html.HtmlTag;
 import fitnesse.html.HtmlUtil;
 import fitnesse.wikitext.widgets.TOCWidget;
@@ -31,8 +34,25 @@ public class Contents extends SymbolType implements Rule, Translation {
         ContentsItemBuilder itemBuilder
                 = new ContentsItemBuilder(symbol, 1);
         HtmlTag contentsDiv = HtmlUtil.makeDivTag("contents");
+        HtmlTag div = HtmlUtil.makeDivTag("toc1");
+        String id="contentsXYZ";
+        div.addAttribute("id", id);
         contentsDiv.add(HtmlUtil.makeBold("Contents:"));
-        HtmlTag div = itemBuilder.buildLevel(translator.getPage(), contentsDiv);
-        return div.html();
+        contentsDiv.add(itemBuilder.buildLevel(translator.getPage(), div));
+        
+        VelocityContext velocityContext = new VelocityContext();
+        velocityContext.put("listName", "#" +  id);
+
+        contentsDiv.add(HtmlUtil.makeJavascriptLink("/files/javascript/jquery.js"));
+        contentsDiv.add(HtmlUtil.makeJavascriptLink("/files/javascript/jquery.jstree.js"));
+        HtmlTag scriptTag = new HtmlTag("script");
+        try {
+          scriptTag.add(VelocityFactory.translateTemplate(velocityContext, "contentsTree.vm"));
+        } catch (Exception e) {
+        }
+
+        contentsDiv.add(scriptTag);
+
+        return contentsDiv.html();
     }
 }

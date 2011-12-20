@@ -23,6 +23,10 @@ ul {
   text-indent: -1em;
 }
 
+.jstree ul {
+  text-indent : 0em;
+}
+
 ol {
   padding-left: 1.3em;
   text-indent: -1.3em;

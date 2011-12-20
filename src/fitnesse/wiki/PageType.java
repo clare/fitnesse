@@ -1,6 +1,7 @@
 package fitnesse.wiki;
 
 import static fitnesse.wiki.PageData.*;
+import fitnesse.wikitext.parser.SourcePage;
 
 public enum PageType {
 
@@ -49,6 +50,19 @@ public enum PageType {
     return STATIC;
   }
 
+  public static PageType fromWikiPage(SourcePage page) throws Exception {
+    if (page.hasProperty("Suite")) {
+      return SUITE;
+    }
+
+    if (page.hasProperty(TEST.toString())) {
+      return TEST;
+    }
+
+    return STATIC;
+  }
+
+  
   public static PageType getPageTypeForPageName(String pageName) {
     for (PageType type: values()) {
       if (type.validForPageName(pageName))

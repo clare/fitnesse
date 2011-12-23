@@ -31,4 +31,4 @@
 !|Response Examiner.|
 |type|pattern|matches?|
 |contents|div class="toc1"|true|
-|contents|div class="toc2"|true|
+|contents|ul class="toc2"|true|

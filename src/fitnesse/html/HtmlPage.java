@@ -63,6 +63,7 @@ public class HtmlPage extends HtmlTag {
     head.add(makeCssLink("/files/css/fitnesse.css", "screen"));
     head.add(makeCssLink("/files/css/fitnesse_print.css", "print"));
     head.add(HtmlUtil.makeJavascriptLink("/files/javascript/fitnesse.js"));
+    head.add(HtmlUtil.makeJavascriptLink("/files/javascript/jquery-1.4.2.min.js"));
     return head;
   }
 

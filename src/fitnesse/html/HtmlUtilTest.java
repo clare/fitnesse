@@ -74,55 +74,7 @@ public class HtmlUtilTest extends RegexTestCase {
     }
   }
 
-  public void testMakeDefaultActions() throws Exception {
-    String pageName = "SomePage";
-    String html = getActionsHtml(pageName);
-    verifyDefaultLinks(html, "SomePage");
-  }
 
-  public void testMakeActionsWithTestButtonWhenNameStartsWithTest() throws Exception {
-    String pageName = "TestSomething";
-    String html = getActionsHtml(pageName);
-    verifyDefaultLinks(html, pageName);
-    assertSubString("<a href=\"" + pageName + "?test\" accesskey=\"t\">Test</a>", html);
-  }
-
-  public void testMakeActionsWithSuffixButtonWhenNameEndsWithTest() throws Exception {
-    String pageName = "SomethingTest";
-    String html = getActionsHtml(pageName);
-    verifyDefaultLinks(html, pageName);
-    assertSubString("<a href=\"" + pageName + "?test\" accesskey=\"t\">Test</a>", html);
-  }
-
-  public void testMakeActionsWithSuiteButtonWhenNameStartsWithSuite() throws Exception {
-    String pageName = "SuiteNothings";
-    String html = getActionsHtml(pageName);
-    verifyDefaultLinks(html, pageName);
-    assertSubString("<a href=\"" + pageName + "?suite\" accesskey=\"\">Suite</a>", html);
-  }
-
-  public void testMakeActionsWithSuiteButtonWhenNameEndsWithSuite() throws Exception {
-    String pageName = "NothingsSuite";
-    String html = getActionsHtml(pageName);
-    verifyDefaultLinks(html, pageName);
-    assertSubString("<a href=\"" + pageName + "?suite\" accesskey=\"\">Suite</a>", html);
-  }
-
-  private String getActionsHtml(String pageName) throws Exception {
-    root.addChildPage(pageName);
-    return HtmlUtil.makeActions(root.getChildPage(pageName).getActions()).html();
-  }
-
-  private void verifyDefaultLinks(String html, String pageName) {
-    assertSubString("<a href=\"" + pageName + "?edit\" accesskey=\"e\">Edit</a>", html);
-    assertSubString("<a href=\"" + pageName + "?versions\" accesskey=\"v\">Versions</a>", html);
-    assertSubString("<a href=\"" + pageName + "?properties\" accesskey=\"p\">Properties</a>", html);
-    assertSubString("<a href=\"" + pageName + "?refactor\" accesskey=\"r\">Refactor</a>", html);
-    assertSubString("<a href=\"" + pageName + "?whereUsed\" accesskey=\"w\">Where Used</a>", html);
-    assertSubString("<a href=\"/files\" accesskey=\"f\">Files</a>", html);
-    assertSubString("<a href=\"?searchForm\" accesskey=\"s\">Search</a>", html);
-    assertSubString("<a href=\".FitNesse.UserGuide\" accesskey=\"\">User Guide</a>", html);
-  }
 
   public void testMakeReplaceElementScript() throws Exception {
     String newText = "<p>My string has \"quotes\" and \r \n</p>";

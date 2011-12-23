@@ -115,7 +115,7 @@ public class WikiPageDummy implements WikiPage {
     return "Dummy help text";
   }
 
-  public List<WikiPageAction> getActions() throws Exception {
+  public String getMenuHtml() throws Exception {
     return null;
   }
 }

@@ -61,18 +61,18 @@ public class WikiPageResponderTest extends RegexTestCase {
     }
 
     SimpleResponse response = requestPage("NormalPage");
-    assertSubString("<!--Edit button-->", response.getContent());
-    assertSubString("<!--Search button-->", response.getContent());
-    assertSubString("<!--Versions button-->", response.getContent());
-    assertNotSubString("<!--Suite button-->", response.getContent());
-    assertNotSubString("<!--Test button-->", response.getContent());
+    assertSubString(">Edit Page<", response.getContent());
+    assertSubString(">Search<", response.getContent());
+    assertSubString(">Versions<", response.getContent());
+    assertNotSubString(">Run Suite<", response.getContent());
+    assertNotSubString(">Run Test<", response.getContent());
 
     response = requestPage("NoButtonPage");
-    assertNotSubString("<!--Edit button-->", response.getContent());
-    assertNotSubString("<!--Search button-->", response.getContent());
-    assertNotSubString("<!--Versions button-->", response.getContent());
-    assertNotSubString("<!--Suite button-->", response.getContent());
-    assertNotSubString("<!--Test button-->", response.getContent());
+    assertNotSubString(">Edit Page<", response.getContent());
+    assertNotSubString(">Search<", response.getContent());
+    assertNotSubString(">Versions<", response.getContent());
+    assertNotSubString(">Run Suite<", response.getContent());
+    assertNotSubString(">Run Test<", response.getContent());
   }
 
   public void testHeadersAndFooters() throws Exception {

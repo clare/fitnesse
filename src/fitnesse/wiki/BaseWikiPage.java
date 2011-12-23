@@ -5,6 +5,8 @@ package fitnesse.wiki;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import fitnesse.wiki.navigation.SideMenu;
 import util.EnvironmentVariableTool;
 import util.FileUtil;
 
@@ -109,17 +111,16 @@ public abstract class BaseWikiPage implements WikiPage {
     return PageCrawlerImpl.getClosestInheritedPage("PageFooter", this);
   }
 
-  public List<WikiPageAction> getActions() throws Exception {
+  public String getMenuHtml() throws Exception {
     WikiPagePath localPagePath = getPageCrawler().getFullPath(this);
-    String localPageName = PathParser.render(localPagePath);
-    String localOrRemotePageName = localPageName;
+    String localOrRemotePageName = PathParser.render(localPagePath);
     boolean newWindowIfRemote = false;
     if (this instanceof ProxyPage) {
       ProxyPage proxyPage = (ProxyPage) this;
       localOrRemotePageName = proxyPage.getThisPageUrl();
       newWindowIfRemote = true;
     }
-    return makeActions(localPageName, localOrRemotePageName, newWindowIfRemote);
+    return SideMenu.makeMenu(localOrRemotePageName, newWindowIfRemote, getData()).html();
   }
 
   private List<WikiPageAction> makeActions(String localPageName, String localOrRemotePageName, boolean newWindowIfRemote) throws Exception {

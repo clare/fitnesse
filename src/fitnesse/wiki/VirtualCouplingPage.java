@@ -103,7 +103,7 @@ public class VirtualCouplingPage implements WikiPage {
     return "Virtual coupling help text";
   }
 
-  public List<WikiPageAction> getActions() throws Exception {
+  public String getMenuHtml() throws Exception {
     return null;
   }
 }

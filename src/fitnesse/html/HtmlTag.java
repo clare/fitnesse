@@ -41,58 +41,7 @@ public class HtmlTag extends HtmlElement {
   }
 
   public String html(int depth) {
-    StringBuffer buffer = new StringBuffer();
-    addTabs(depth, buffer);
-
-    if (head != null) buffer.append(head);
-
-    buffer.append("<").append(tagName());
-    addAttributes(buffer);
-
-    if (hasChildren()) {
-      buffer.append(">");
-      boolean tagWasAdded = addChildHtml(buffer, depth);
-      if (tagWasAdded && !isInline) addTabs(depth, buffer);
-      buffer.append("</").append(tagName()).append(">");
-    } else
-      buffer.append("/>");
-
-    if (tail != null) buffer.append(tail);
-    if (!isInline) buffer.append(endl);
-
-    return buffer.toString();
-  }
-
-  private void addAttributes(StringBuffer buffer) {
-    for (Attribute attribute : attributes) {
-      buffer.append(" ").append(attribute.name).append("=\"").append(attribute.value).append("\"");
-    }
-  }
-
-  protected void addTabs(int depth, StringBuffer buffer) {
-    for (int i = 0; i < depth; i++)
-      buffer.append('\t');
-  }
-
-  private boolean addChildHtml(StringBuffer buffer, int depth) {
-    boolean addedTag = false;
-    boolean lastAddedWasNonTag = false;
-    int i = 0;
-    for (HtmlElement element : childTags) {
-      if (element instanceof HtmlTag) {
-        if ((i == 0 || lastAddedWasNonTag) && !isInline)
-          buffer.append(endl);
-        buffer.append(((HtmlTag) element).html(depth + 1));
-        addedTag = true;
-        lastAddedWasNonTag = false;
-      } else {
-        buffer.append(element.html());
-        lastAddedWasNonTag = true;
-      }
-      i++;
-    }
-
-    return addedTag;
+    return new HtmlFormatter(depth).format();
   }
 
   private boolean hasChildren() {
@@ -128,6 +77,13 @@ public class HtmlTag extends HtmlElement {
     return null;
   }
 
+  protected String makeIndent(int depth) {
+    String indent = "";
+    for (int i = 0; i < depth; i++)
+      indent += '\t';
+    return indent;
+  }
+
   public static class Attribute {
     public String name;
     public String value;
@@ -135,6 +91,105 @@ public class HtmlTag extends HtmlElement {
     public Attribute(String name, String value) {
       this.name = name;
       this.value = value;
+    }
+  }
+
+  private class HtmlFormatter {
+    private int depth;
+    private boolean childTagWasMade;
+    private boolean lastMadeChildWasNotTag;
+    private boolean firstElement;
+
+    public HtmlFormatter(int depth) {
+      this.depth = depth;
+    }
+
+    public String format() {
+      return makeTabs() + makeHead()
+        + makeTag() + makeAttributes() + makeTagEnd()
+        + makeChildren()
+        + makeEndTag()
+        + makeTail() + makeLineEnd();
+    }
+
+    private String makeEndTag() {
+      return hasChildren() ? "</" + tagName() + ">" : "";
+    }
+
+    private String makeLineEnd() {
+      return isInline ? "" : endl;
+    }
+
+    private String makeTail() {
+      return tail == null ? "" : tail;
+    }
+
+    private String makeChildren() {
+      String children = "";
+      if (hasChildren()) {
+        children = makeChildrenWithoutTrailingIndent();
+        if (childTagWasMade && !isInline) children += makeTabs();
+      }
+      return children;
+    }
+
+    private String makeChildrenWithoutTrailingIndent() {
+      String children = "";
+      childTagWasMade = false;
+      lastMadeChildWasNotTag = false;
+      firstElement = true;
+      for (HtmlElement element : childTags) {
+        children += makeChildFromElement(element);
+        firstElement = false;
+      }
+      return children;
+    }
+
+    private String makeChildFromElement(HtmlElement element) {
+      boolean childIsTag = element instanceof HtmlTag;
+      String child = childIsTag ?
+        makeChildFromTag((HtmlTag) element) :
+        element.html();
+
+      prepareForNextElement(childIsTag);
+      return child;
+    }
+
+    private void prepareForNextElement(boolean childIsTag) {
+      childTagWasMade |= childIsTag;
+      lastMadeChildWasNotTag = !childIsTag;
+    }
+
+    private String makeChildFromTag(HtmlTag element) {
+      return (childShouldStartWithNewLine() ? endl : "") + ((HtmlTag) element).html(depth + 1);
+    }
+
+    private boolean childShouldStartWithNewLine() {
+      return (firstElement || lastMadeChildWasNotTag) && !isInline;
+    }
+
+    private String makeTagEnd() {
+      return hasChildren() ? ">" : "/>";
+    }
+
+    private String makeAttributes() {
+      String attributes = "";
+      for (Attribute attribute : HtmlTag.this.attributes) {
+        attributes += " " + attribute.name + "=\"" + attribute.value + "\"";
+      }
+      return attributes;
+    }
+
+    private String makeTag() {
+      return "<" + tagName();
+    }
+
+    private String makeHead() {
+      return head == null ? "" : head;
+    }
+
+    private String makeTabs() {
+      return makeIndent(depth);
     }
   }
 }

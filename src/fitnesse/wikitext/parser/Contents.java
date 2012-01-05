@@ -5,10 +5,16 @@ import org.apache.velocity.VelocityContext;
 import fitnesse.VelocityFactory;
 import fitnesse.html.HtmlTag;
 import fitnesse.html.HtmlUtil;
-import fitnesse.wikitext.widgets.TOCWidget;
 import util.Maybe;
 
 public class Contents extends SymbolType implements Rule, Translation {
+    public static final String FILTER_TOC = "FILTER_TOC";
+    public static final String HELP_TOC = "HELP_TOC";
+    public static final String MORE_SUFFIX_DEFAULT = " ...";
+    public static final String MORE_SUFFIX_TOC = "MORE_SUFFIX_TOC";
+    public static final String PROPERTY_TOC = "PROPERTY_TOC";
+    public static final String REGRACE_TOC = "REGRACE_TOC";
+
     public Contents() {
         super("Contents");
         wikiMatcher(new Matcher().string("!contents"));
@@ -25,7 +31,7 @@ public class Contents extends SymbolType implements Rule, Translation {
         }
 
         current.evaluateVariables(
-                new String[] {TOCWidget.HELP_TOC, TOCWidget.REGRACE_TOC, TOCWidget.PROPERTY_TOC, TOCWidget.FILTER_TOC, TOCWidget.MORE_SUFFIX_TOC},
+                new String[] {HELP_TOC, REGRACE_TOC, PROPERTY_TOC, FILTER_TOC, MORE_SUFFIX_TOC},
                 parser.getVariableSource());
 
         return new Maybe<Symbol>(current);

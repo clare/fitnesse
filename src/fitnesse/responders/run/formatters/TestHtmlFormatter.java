@@ -2,6 +2,7 @@
 // Released under the terms of the CPL Common Public License version 1.0.
 package fitnesse.responders.run.formatters;
 
+import fitnesse.responders.run.TestPage;
 import util.TimeMeasurement;
 import fitnesse.FitNesseContext;
 import fitnesse.html.*;
@@ -59,7 +60,7 @@ public abstract class TestHtmlFormatter extends BaseFormatter {
   }
 
   @Override
-  public void newTestStarted(WikiPage test, TimeMeasurement timeMeasurement) throws Exception {
+  public void newTestStarted(TestPage test, TimeMeasurement timeMeasurement) throws Exception {
     writeData(getPage().getData().getHeaderPageHtml());
   }
 
@@ -74,7 +75,7 @@ public abstract class TestHtmlFormatter extends BaseFormatter {
   }
 
   @Override
-  public void testComplete(WikiPage testPage, TestSummary testSummary, TimeMeasurement timeMeasurement)
+  public void testComplete(TestPage testPage, TestSummary testSummary, TimeMeasurement timeMeasurement)
     throws Exception {
     super.testComplete(testPage, testSummary, timeMeasurement);
     latestTestTime = timeMeasurement;
@@ -82,9 +83,9 @@ public abstract class TestHtmlFormatter extends BaseFormatter {
     processTestResults(getRelativeName(testPage), testSummary);
   }
 
-  protected String getRelativeName(WikiPage testPage) throws Exception {
+  protected String getRelativeName(TestPage testPage) throws Exception {
     PageCrawler pageCrawler = getPage().getPageCrawler();
-    String relativeName = pageCrawler.getRelativeName(getPage(), testPage);
+    String relativeName = pageCrawler.getRelativeName(getPage(), testPage.getSourcePage());
     if ("".equals(relativeName)) {
       relativeName = String.format("(%s)", testPage.getName());
     }

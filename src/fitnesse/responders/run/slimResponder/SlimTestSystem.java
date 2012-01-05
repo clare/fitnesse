@@ -115,31 +115,33 @@ public abstract class SlimTestSystem extends TestSystem implements SlimTestConte
     if (fastTest) {
       slimRunner = new MockCommandRunner();
       createSlimService(slimArguments);
-    } if (manualStart) {
+    }
+    else if (manualStart) {
       slimSocket = getSlimPortBase();
       slimRunner = new MockCommandRunner();
-    }
-    else {
+    } else {
       slimRunner = new CommandRunner(slimCommand, "", createClasspathEnvironment(classPath));
     }
     return new ExecutionLog(page, slimRunner);
   }
-  
+
   public int findFreePort() {
     int port;
     try {
-      ServerSocket socket= new ServerSocket(0);
+      ServerSocket socket = new ServerSocket(0);
       port = socket.getLocalPort();
-      socket.close(); 
-    } catch (Exception e) { port = -1; }
-    return port;    
-  } 
+      socket.close();
+    } catch (Exception e) {
+      port = -1;
+    }
+    return port;
+  }
 
   public int getNextSlimSocket() {
-	int base = getSlimPortBase();
-	if (base == 0) {
-		return findFreePort();
-	}
+    int base = getSlimPortBase();
+    if (base == 0) {
+      return findFreePort();
+    }
     synchronized (slimSocketOffset) {
       int offset = slimSocketOffset.get();
       offset = (offset + 1) % 10;
@@ -184,8 +186,12 @@ public abstract class SlimTestSystem extends TestSystem implements SlimTestConte
 
   public void bye() throws Exception {
     slimClient.sendBye();
-    if (!fastTest && !manualStart)
+    if (!fastTest && !manualStart) {
       slimRunner.join();
+    }
+    if (fastTest) {
+      slimRunner.kill();
+    }
   }
 
   //For testing only.  Makes responder faster.

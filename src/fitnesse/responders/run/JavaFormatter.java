@@ -3,10 +3,10 @@ package fitnesse.responders.run;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,9 +51,10 @@ public class JavaFormatter extends BaseFormatter {
     }
 
     public void open(String testName) throws IOException {
-      currentWriter = new FileWriter(new File(outputPath, testName + ".html"));
+      File outputFile = new File(outputPath, testName + ".html");
+      currentWriter = new OutputStreamWriter(new FileOutputStream(outputFile), "UTF-8");
 
-      currentWriter.write("<head><title>");
+      currentWriter.write("<html><head><title>");
       currentWriter.write(testName);
       currentWriter
           .write("</title><meta http-equiv='Content-Type' content='text/html;charset=utf-8'/>"
@@ -115,8 +116,8 @@ public class JavaFormatter extends BaseFormatter {
   private Map<String, TestSummary> testSummaries = new HashMap<String, TestSummary>();
 
   @Override
-  public void newTestStarted(WikiPage test, TimeMeasurement timeMeasurement) throws Exception {
-    resultsRepository.open(getFullPath(test));
+  public void newTestStarted(TestPage test, TimeMeasurement timeMeasurement) throws Exception {
+    resultsRepository.open(getFullPath(test.getSourcePage()));
     if (listener != null)
       listener.newTestStarted(test, timeMeasurement);
   }
@@ -126,8 +127,8 @@ public class JavaFormatter extends BaseFormatter {
       throws Exception {
   }
 
-  public void testComplete(WikiPage test, TestSummary testSummary, TimeMeasurement timeMeasurement) throws Exception {
-    String fullPath = getFullPath(test);
+  public void testComplete(TestPage test, TestSummary testSummary, TimeMeasurement timeMeasurement) throws Exception {
+    String fullPath = getFullPath(test.getSourcePage());
     visitedTestPages.add(fullPath);
     totalSummary.add(testSummary);
     testSummaries.put(fullPath, new TestSummary(testSummary));

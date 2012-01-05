@@ -3,6 +3,7 @@
 package fitnesse.http;
 
 import fitnesse.testutil.MockSocket;
+import util.ConcurrentBoolean;
 
 import java.io.OutputStream;
 import java.io.PipedInputStream;
@@ -10,22 +11,19 @@ import java.net.Socket;
 
 public class MockResponseSender implements ResponseSender {
   public MockSocket socket;
-  protected boolean closed = false;
+  protected ConcurrentBoolean closed;
 
   public MockResponseSender() {
     socket = new MockSocket("Mock");
-    closed = false;
+    closed = new ConcurrentBoolean();
   }
 
   public void send(byte[] bytes) throws Exception {
-    //Todo Timing Problem -- Figure out why this is necessary.  
-    for (int i = 0; i < 1000; i++) Thread.yield();
     socket.getOutputStream().write(bytes);
   }
 
-  public synchronized void close() throws Exception {
-    closed = true;
-    notifyAll();
+  public void close() throws Exception {
+    closed.set(true);
   }
 
   public Socket getSocket() throws Exception {
@@ -38,22 +36,16 @@ public class MockResponseSender implements ResponseSender {
 
   public void doSending(Response response) throws Exception {
     response.readyToSend(this);
-    waitForClose(10000);
+    waitForClose(20000);
   }
 
-  // Utility method that returns when this.closed is true. Throws an exception
-  // if the timeout is reached.
-  public synchronized void waitForClose(long timeoutMillis) throws Exception {
-    while (!closed && timeoutMillis > 0) {
-      wait(100);
-      timeoutMillis -= 100;
-    }
-    if (!closed)
+  public void waitForClose(long timeoutMillis) throws Exception {
+    if (!closed.waitFor(true, timeoutMillis))
       throw new Exception("MockResponseSender could not be closed");
   }
 
   public boolean isClosed() {
-    return closed;
+    return closed.isTrue();
   }
 
   public static class OutputStreamSender extends MockResponseSender {
@@ -63,7 +55,7 @@ public class MockResponseSender implements ResponseSender {
 
     public void doSending(Response response) throws Exception {
       response.readyToSend(this);
-      while (!closed)
+      while (!closed.isTrue())
         Thread.sleep(1000);
     }
   }

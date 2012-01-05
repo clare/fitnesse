@@ -8,7 +8,7 @@ import fitnesse.http.Request;
 import fitnesse.http.Response;
 import fitnesse.http.SimpleResponse;
 import fitnesse.wiki.*;
-import fitnesse.wikitext.widgets.WikiWordWidget;
+import fitnesse.wikitext.parser.WikiWordPath;
 
 public class AddChildPageResponder implements SecureResponder {
   private WikiPage currentPage;
@@ -29,9 +29,8 @@ public class AddChildPageResponder implements SecureResponder {
       return notFoundResponse(context, request);
     else if (nameIsInvalid(childName))
       return errorResponse(context, request);
-    else {
-      return createChildPageAndMakeResponse(request);
-    }
+
+    return createChildPageAndMakeResponse(request);
   }
 
   private void parseRequest(FitNesseContext context, Request request) throws Exception {
@@ -60,7 +59,7 @@ public class AddChildPageResponder implements SecureResponder {
   private boolean nameIsInvalid(String name) {
     if (name.equals(""))
       return true;
-    if (!WikiWordWidget.isSingleWikiWord(name))
+    if (!WikiWordPath.isSingleWikiWord(name))
       return true;
     return false;
   }
@@ -72,12 +71,11 @@ public class AddChildPageResponder implements SecureResponder {
 
   private void setTestAndSuiteAttributes(WikiPage childPage) throws Exception {
     PageData childPageData = childPage.getData();
-    if (pageType.equals(PageType.STATIC.toString())) {
+    if (pageType.equals("Static")) {
       childPageData.getProperties().remove("Test");
       childPageData.getProperties().remove("Suite");
     } else if ("Test".equals(pageType) || "Suite".equals(pageType))
       childPageData.setAttribute(pageType);
-    
     childPage.commit(childPageData);
   }
 

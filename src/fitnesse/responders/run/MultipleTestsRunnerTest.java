@@ -3,7 +3,6 @@
 package fitnesse.responders.run;
 
 import fitnesse.FitNesseContext;
-import fitnesse.responders.run.PagesByTestSystem;
 import fitnesse.testutil.FitNesseUtil;
 import fitnesse.wiki.*;
 import static org.mockito.Mockito.*;
@@ -11,8 +10,6 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Matchers;
-import org.mockito.internal.matchers.InstanceOf;
 
 import static util.RegexTestCase.assertSubString;
 import util.TimeMeasurement;
@@ -62,17 +59,17 @@ public class MultipleTestsRunnerTest {
     WikiPage slimPage = addTestPage(suite, "SlimTest", simpleSlimDecisionTable);
     
     MultipleTestsRunner runner = new MultipleTestsRunner(testPages, context, suite, null);
-    Map<TestSystem.Descriptor, LinkedList<WikiPage>> map = runner.makeMapOfPagesByTestSystem();
+    Map<TestSystem.Descriptor, LinkedList<TestPage>> map = runner.makeMapOfPagesByTestSystem();
 
     TestSystem.Descriptor fitDescriptor = TestSystem.getDescriptor(testPage.getData(), false);
     TestSystem.Descriptor slimDescriptor = TestSystem.getDescriptor(slimPage.getData(), false);
-    List<WikiPage> fitList = map.get(fitDescriptor);
-    List<WikiPage> slimList = map.get(slimDescriptor);
+    List<TestPage> fitList = map.get(fitDescriptor);
+    List<TestPage> slimList = map.get(slimDescriptor);
 
     assertEquals(1, fitList.size());
     assertEquals(1, slimList.size());
-    assertEquals(testPage, fitList.get(0));
-    assertEquals(slimPage, slimList.get(0));
+    assertEquals(testPage, fitList.get(0).getSourcePage());
+    assertEquals(slimPage, slimList.get(0).getSourcePage());
   }
   
   @Test
@@ -88,23 +85,23 @@ public class MultipleTestsRunnerTest {
     testPages.add(tearDown);
 
     MultipleTestsRunner runner = new MultipleTestsRunner(testPages, context, suite, null);
-    Map<TestSystem.Descriptor, LinkedList<WikiPage>> map = runner.makeMapOfPagesByTestSystem();
+    Map<TestSystem.Descriptor, LinkedList<TestPage>> map = runner.makeMapOfPagesByTestSystem();
     TestSystem.Descriptor fitDescriptor = TestSystem.getDescriptor(testPage.getData(), false);
     TestSystem.Descriptor slimDescriptor = TestSystem.getDescriptor(slimPage.getData(), false);
 
-    List<WikiPage> fitList = map.get(fitDescriptor);
-    List<WikiPage> slimList = map.get(slimDescriptor);
+    List<TestPage> fitList = map.get(fitDescriptor);
+    List<TestPage> slimList = map.get(slimDescriptor);
 
     assertEquals(3, fitList.size());
     assertEquals(3, slimList.size());
 
-    assertEquals(setUp, fitList.get(0));
-    assertEquals(testPage, fitList.get(1));
-    assertEquals(tearDown, fitList.get(2));
+    assertEquals(setUp, fitList.get(0).getSourcePage());
+    assertEquals(testPage, fitList.get(1).getSourcePage());
+    assertEquals(tearDown, fitList.get(2).getSourcePage());
 
-    assertEquals(setUp, slimList.get(0));
-    assertEquals(slimPage, slimList.get(1));
-    assertEquals(tearDown, slimList.get(2));
+    assertEquals(setUp, slimList.get(0).getSourcePage());
+    assertEquals(slimPage, slimList.get(1).getSourcePage());
+    assertEquals(tearDown, slimList.get(2).getSourcePage());
   }
 
   
@@ -126,11 +123,11 @@ public class MultipleTestsRunnerTest {
   @Test
   public void startingNewTestShouldStartTimeMeasurementAndNotifyListener() throws Exception {
     List<WikiPage> testPagesToRun = mock(List.class);
-    WikiPage page = mock(WikiPage.class);
+    TestPage page = new TestPage(mock(WikiPage.class));
     FitNesseContext fitNesseContext = mock(FitNesseContext.class);
     ResultsListener resultsListener = mock(ResultsListener.class);
     
-    MultipleTestsRunner runner = new MultipleTestsRunner(testPagesToRun, fitNesseContext, page, resultsListener);
+    MultipleTestsRunner runner = new MultipleTestsRunner(testPagesToRun, fitNesseContext, page.getSourcePage(), resultsListener);
     
     runner.startingNewTest(page);
     verify(resultsListener).newTestStarted(same(page), same(runner.currentTestTime));
@@ -149,11 +146,11 @@ public class MultipleTestsRunnerTest {
   @Test
   public void testCompleteShouldRemoveHeadOfQueueAndNotifyListener() throws Exception {
     List<WikiPage> testPagesToRun = mock(List.class);
-    WikiPage page = mock(WikiPage.class);
+    TestPage page = new TestPage(mock(WikiPage.class));
     FitNesseContext fitNesseContext = mock(FitNesseContext.class);
     ResultsListener resultsListener = mock(ResultsListener.class);
     
-    MultipleTestsRunner runner = new MultipleTestsRunner(testPagesToRun, fitNesseContext, page, resultsListener);
+    MultipleTestsRunner runner = new MultipleTestsRunner(testPagesToRun, fitNesseContext, page.getSourcePage(), resultsListener);
     runner.addToProcessingQueue(page);
     
     TestSummary testSummary = mock(TestSummary.class);

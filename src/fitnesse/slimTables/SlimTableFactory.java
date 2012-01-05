@@ -41,7 +41,7 @@ public class SlimTableFactory {
     else if (tableType.equalsIgnoreCase("library"))
       return new LibraryTable(table, tableId, slimTestContext);
     else if (tableType.equalsIgnoreCase("define table type"))  {
-        parseTableTypeDefineTable(table);
+        parseDefineTableTypeTable(table);
         return null;
       }
     else if (doesNotHaveColon(tableType))
@@ -63,21 +63,26 @@ public class SlimTableFactory {
     return tableName;
   }
 
-  private SlimTable parseTableTypeDefineTable(Table table) {
-    for (int rowIndex = 1; rowIndex < table.getRowCount(); rowIndex++) {
-      if (table.getColumnCountInRow(rowIndex) == 2) {
-        String disgracedName = Disgracer.disgraceClassName(table.getCellContents(0, rowIndex));
-        
-        String definition = table.getCellContents(1, rowIndex).toLowerCase();
-        definition = definition.replace(':', ' ');
-        if (definition.startsWith("as")) {
-          definition = definition.substring(2);
-        }
-        definition = definition.trim();
-        
-        tableTypeArrays.put(disgracedName, definition);
-      }
-    }
+  private SlimTable parseDefineTableTypeTable(Table table) {
+    for (int rowIndex = 1; rowIndex < table.getRowCount(); rowIndex++)
+      parseDefineTableTypeRow(table, rowIndex);
     return null;
+  }
+
+  private void parseDefineTableTypeRow(Table table, int rowIndex) {
+    if (table.getColumnCountInRow(rowIndex) >= 2) {
+      String fixtureName = table.getCellContents(0, rowIndex);
+      String fixture = Disgracer.disgraceClassName(fixtureName);
+      String tableSpecifier = table.getCellContents(1, rowIndex).toLowerCase();
+      tableTypeArrays.put(fixture, makeTableType(tableSpecifier));
+    }
+  }
+
+  private String makeTableType(String tableSpecifier) {
+    String tableType = tableSpecifier.replace(':', ' ');
+    if (tableType.startsWith("as"))
+      tableType = tableType.substring(2);
+
+    return tableType.trim();
   }
 }

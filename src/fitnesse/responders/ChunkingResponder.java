@@ -67,6 +67,8 @@ public abstract class ChunkingResponder implements Responder {
       doSending();
     }
     catch (SocketException e) {
+      System.out.println("Socket Exception at: " + System.currentTimeMillis());
+      e.printStackTrace();
       // normal. someone stopped the request.
     }
     catch (Exception e) {
@@ -92,18 +94,9 @@ public abstract class ChunkingResponder implements Responder {
 
   protected class RespondingRunnable implements Runnable {
     public void run() {
-      while (!response.isReadyToSend()) {
-        try {
-          synchronized (response) {
-            response.notifyAll();
-            response.wait();
-          }
-        }
-        catch (InterruptedException e) {
-          //ok
-        }
-      }
+      response.waitForReadyToSend();
       startSending();
+
     }
   }
 

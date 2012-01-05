@@ -68,7 +68,7 @@ public class SlimTableFactoryTest {
     assertThatTableTypeImportWorks("A Table table", "Table", "A Table table", TableTable.class); 
 
     assertThatTableTypeImportWorks("As is allowed", "as Table", "As is allowed", TableTable.class); 
-    assertThatTableTypeImportWorks("Colon is okay too", "Table", "Colon is okay too", TableTable.class); 
+    assertThatTableTypeImportWorks("Colon is okay too", "as:Table", "Colon is okay too", TableTable.class);
 
     assertThatTableTypeImportWorks("", "", "This should be default", DecisionTable.class); 
   }
